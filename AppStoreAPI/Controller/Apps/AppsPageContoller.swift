@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AppsPageContoller: BaseListController, UICollectionViewDelegateFlowLayout {
+class AppsPageController: BaseListController, UICollectionViewDelegateFlowLayout {
     
     let cellId = "id"
     let headerId = "headerId"
@@ -38,7 +38,7 @@ class AppsPageContoller: BaseListController, UICollectionViewDelegateFlowLayout 
     
     //    var editorsChoiceGames: AppGroup?
     
-    //var socialApps = [SocialApp]()
+    var socialApps = [SocialApp]()
     var groups = [AppGroup]()
     
     fileprivate func fetchData() {
@@ -52,14 +52,12 @@ class AppsPageContoller: BaseListController, UICollectionViewDelegateFlowLayout 
         
         dispatchGroup.enter()
         Service.shared.fetchGames { (appGroup, err) in
-            print("Done with games")
             dispatchGroup.leave()
             group1 = appGroup
         }
         
         dispatchGroup.enter()
         Service.shared.fetchTopGrossing { (appGroup, err) in
-            print("Done with top grossing")
             dispatchGroup.leave()
             group2 = appGroup
         }
@@ -67,22 +65,20 @@ class AppsPageContoller: BaseListController, UICollectionViewDelegateFlowLayout 
         dispatchGroup.enter()
         Service.shared.fetchAppGroup(urlString: "https://rss.itunes.apple.com/api/v1/us/ios-apps/top-free/all/25/explicit.json") { (appGroup, err) in
             dispatchGroup.leave()
-            print("Done with free games")
             group3 = appGroup
         }
         
-//        dispatchGroup.enter()
-//        Service.shared.fetchSocialApps { (apps, err) in
-//            // you should check the err
-//            dispatchGroup.leave()
-//            self.socialApps = apps ?? []
-//            //            self.collectionView.reloadData()
-//        }
+        dispatchGroup.enter()
+        Service.shared.fetchSocialApps { (apps, err) in
+            // you should check the err
+            
+            dispatchGroup.leave()
+            self.socialApps = apps ?? []
+            //            self.collectionView.reloadData()
+        }
         
         // completion
         dispatchGroup.notify(queue: .main) {
-            print("completed your dispatch group tasks...")
-            
             self.activityIndicatorView.stopAnimating()
             
             if let group = group1 {
@@ -101,7 +97,8 @@ class AppsPageContoller: BaseListController, UICollectionViewDelegateFlowLayout 
     // 2
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as! AppsPageHeader
-        //header.appHeaderHorizontalController.socialApps = self.socialApps
+        print("Debug",self.socialApps)
+        header.appHeaderHorizontalController.socialApps = self.socialApps
         header.appHeaderHorizontalController.collectionView.reloadData()
         return header
     }
@@ -123,6 +120,13 @@ class AppsPageContoller: BaseListController, UICollectionViewDelegateFlowLayout 
         cell.titleLabel.text = appGroup.feed.title
         cell.horizontalController.appGroup = appGroup
         cell.horizontalController.collectionView.reloadData()
+        cell.horizontalController.didSelectHandler = { [weak self] feedResult in
+
+            let controller = AppDetailController()
+            controller.appId = feedResult.id
+            controller.navigationItem.title = feedResult.name
+            self?.navigationController?.pushViewController(controller, animated: true)
+        }
         
         return cell
     }

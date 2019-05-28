@@ -5,10 +5,10 @@
 //  Created by Brian Voong on 2/12/19.
 //  Copyright © 2019 Brian Voong. All rights reserved.
 //
-
 import Foundation
 
 class Service {
+    
     static let shared = Service() // singleton
     
     func fetchApps(searchTerm: String, completion: @escaping (SearchResult?, Error?) -> ()) {
@@ -33,10 +33,10 @@ class Service {
         fetchGenericJSONData(urlString: urlString, completion: completion)
     }
     
-//    func fetchSocialApps(completion: @escaping ([SocialApp]?, Error?) -> Void) {
-//        let urlString = "https://api.letsbuildthatapp.com/appstore/social"
-//        fetchGenericJSONData(urlString: urlString, completion: completion)
-//    }
+    func fetchSocialApps(completion: @escaping ([SocialApp]?, Error?) -> Void) {
+        let urlString = "https://api.letsbuildthatapp.com/appstore/social"
+        fetchGenericJSONData(urlString: urlString, completion: completion)
+    }
     
     // declare my generic json function here
     func fetchGenericJSONData<T: Decodable>(urlString: String, completion: @escaping (T?, Error?) -> ()) {
@@ -82,3 +82,5 @@ func dummyFunc() {
     let stackOfInts = Stack<Int>()
     stackOfInts.push(item: 1)
 }
+
+

@@ -7,11 +7,12 @@
 //
 
 import UIKit
+import SDWebImage
 
 class AppsSearchController: BaseListController, UICollectionViewDelegateFlowLayout, UISearchBarDelegate {
     
     fileprivate let cellId = "id1234"
-
+    
     fileprivate let searchController = UISearchController(searchResultsController: nil)
     
     fileprivate let enterSearchTermLabel: UILabel = {
@@ -33,6 +34,7 @@ class AppsSearchController: BaseListController, UICollectionViewDelegateFlowLayo
         
         setupSearchBar()
         
+        //        fetchITunesApps()
     }
     
     fileprivate func setupSearchBar() {
@@ -57,15 +59,31 @@ class AppsSearchController: BaseListController, UICollectionViewDelegateFlowLayo
             
             // this will actually fire my search
             Service.shared.fetchApps(searchTerm: searchText) { (res, err) in
-                //self.appResults = res
+                self.appResults = res?.results ?? []
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
             }
+            
         })
     }
     
     fileprivate var appResults = [Result]()
+    
+    fileprivate func fetchITunesApps() {
+        Service.shared.fetchApps(searchTerm: "Twitter") { (res, err) in
+            
+            if let err = err {
+                print("Failed to fetch apps:", err)
+                return
+            }
+            
+            self.appResults = res?.results ?? []
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+        }
+    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return .init(width: view.frame.width, height: 350)
@@ -83,3 +101,4 @@ class AppsSearchController: BaseListController, UICollectionViewDelegateFlowLayo
     }
     
 }
+
